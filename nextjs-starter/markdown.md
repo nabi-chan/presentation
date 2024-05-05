@@ -248,15 +248,48 @@ API 엔드포인트를 만들어 풀 스택 어플리케이션을 쉽게 만들 
 
 ---
 
-# 간단한 페이지 만들어보기
+# 파일 기반 라우팅 이해하기
+
+<div class="only" data-marpit-fragment="1">
 
 ![right](./hello-world.png)
-![right](./hello-world.png)
+
+</div>
+<div class="only" data-marpit-fragment="2">
+
+![right](./hello-world-result.png)
+
+</div>
 
 NextJS에서는 `/pages` 폴더의 경로를 기반으로 페이지 라우팅을 지원합니다.
 
 예를 들어, `/pages/hello-world.tsx` 라는 페이지가 있다면,
 `http://localhost:3000/hello-world` 로 경로가 설정됩니다.
+
+| 파일 경로                     | 페이지 라우팅         |
+| ----------------------------- | --------------------- |
+| `/pages/hello-world.tsx`      | `/hello-world`        |
+| `/pages/dynamic/[id].tsx`     | `/dynamic/1234`       |
+| `/pages/multiple/[...id].tsx` | `/multiple/1234/5678` |
+
+---
+
+# 페이지 만들기
+
+<div class="right">
+
+```tsx
+export default function Page() {
+  return <div>Hello World!</div>;
+}
+```
+
+</div>
+
+기본적으로, NextJS의 모든 페이지는 default export가 되어있어야 하며,
+반드시 함수의 리턴문에 JSX 코드가 작성되어있어야 합니다..
+
+아까 보았던 hello-world.tsx의 코드를 열어보자면... 다음과 같습니다.
 
 ---
 
@@ -269,13 +302,65 @@ footer: NextJS 더 잘 활용해보기
 
 ---
 
-# `getServerSideProps` 로 동적인 페이지 만들어보기
+# `getServerSideProps` 로 동적인 SSR 페이지 만들어보기
 
-동적인 페이지 만드는 예시 (더미 API 사용해서 랜덤한 유저 정보 뱉어내게 하기)
+<div class="only" data-marpit-fragment="1">
+
+![right](./ssr-draw.png)
+
+동적인 페이지를 만들기 위해 만들어진 함수입니다.
+
+페이지를 불러올 때, 서버에서 getServerSideProps의 함수를 실행하여 prop을 만들고, 이를 페이지에 prop으로 내려 렌더링을 합니다.
+
+</div>
+
+<div class="only" data-marpit-fragment="2">
+
+**`/pages/product-list.tsx`**
+
+```tsx
+export default function Page({ products, total }: PageProps) {
+  return (
+    <>
+      <h1>총 {total} 개의 상품</h1>
+      <div>
+        {products.map((product) => (
+          <div key={product.id}>
+            <h2>상품 {product.id} 번</h2>
+            <pre key={product.id}>{JSON.stringify(product, null, 2)}</pre>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+export async function getServerSideProps() {
+  const { products, total } = await fetch(
+    "https://dummyjson.com/products"
+  ).then((res) => res.json());
+
+  return {
+    props: {
+      products: products,
+      total: total,
+    },
+  };
+}
+```
+
+</div>
+<div class="only" data-marpit-fragment="3">
+
+![center](./product-list-result.png)
+
+</div>
 
 ---
 
 # `getStaticProps` 로 정적인 페이지 만들어보기
+
+![right](./ssg-result.png)
 
 정적인 페이지를 만들기 위해 만들어진 API 입니다.
 빌드시에 주어진 **prop에 맞춰 정적인 페이지를 반환**합니다.
@@ -283,10 +368,6 @@ footer: NextJS 더 잘 활용해보기
 **`/pages/static-page.tsx`**
 
 ```tsx
-interface PageProps {
-  result: number;
-}
-
 export default function Page({ result }: PageProps) {
   return (
     <div>
@@ -307,6 +388,76 @@ export function getStaticProps() {
 ---
 
 # `getStaticPaths` 로 다양한 정적인 페이지 만들기
+
+<div class="only" data-marpit-fragment="1">
+
+만약 페이지가 dynamic route이고, `getStaticProps`을 사용한다면,
+2개 이상의 페이지를 만들어야 하는 경우에는 어떻게 코드를 작성해야 할까요?
+
+이럴때 사용할 수 있는 것이 `getStaticPaths` 입니다.
+
+이 함수는 dynamic route에 맞게 정적인 페이지의 경로를 만들어주는 역할을 하는 함수입니다.
+
+예를 들어, getStaticPaths의 return문이 다음과 같으면...
+
+**`/pages/get-static-path-test/[page-id]/tsx`**
+
+```json
+{
+  "paths": [
+    { "params": { "page-id": 1 } },
+    { "params": { "page-id": 2 } },
+    { "params": { "page-id": 3 } },
+    { "params": { "page-id": 4 } }
+  ]
+}
+```
+
+경로는 자연스럽게 `/get-static-path-test/1`, `/get-static-path-test/2`, `/get-static-path-test/3` 과 같이 paths 배열에 있는 요소에 따라 만들어집니다.
+
+</div>
+
+<div class="only" data-marpit-fragment="2">
+
+**`/pages/static-paths/[product-id].tsx`**
+
+```tsx
+// TODO: render product detail page...
+
+export async function getStaticProps(context: GetStaticPropsContext) {
+  const product = await fetch(
+    `https://dummyjson.com/products/${context.params?.["product-id"]}`
+  ).then((res) => res.json());
+
+  return {
+    props: {
+      product: product,
+    },
+  };
+}
+
+export async function getStaticPaths() {
+  const { products } = await fetch("https://dummyjson.com/products").then(
+    (res) => res.json()
+  );
+
+  return {
+    paths: products.map((product: Product) => ({
+      params: {
+        "product-id": product.id.toString(),
+      },
+    })),
+    fallback: false,
+  };
+}
+```
+
+</div>
+<div class="only" data-marpit-fragment="3">
+
+![center](./static-paths-result.png)
+
+</div>
 
 ---
 

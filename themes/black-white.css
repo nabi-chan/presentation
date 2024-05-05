@@ -196,6 +196,11 @@ blockquote p {
   margin: 0;
 }
 
+/* fragmet */
+div.only:not([data-bespoke-marp-current-fragment="current"]) {
+  display: none;
+}
+
 /* image */
 p:has(img) {
   display: flex;
@@ -221,12 +226,27 @@ p img {
   object-fit: contain;
 }
 
-p:has(img[alt~="left"]) {
+section:has(.left) pre,
+section:has(.right) pre,
+section:has(img[alt~="left"]) pre,
+section:has(img[alt~="right"]) pre {
+  display: inline-block;
+  width: calc(50% - 1rem);
+}
+
+div.left,
+div.right {
+  width: 50%;
+}
+
+p:has(img[alt~="left"]),
+.left {
   float: left;
   margin-right: 1rem;
 }
 
-p:has(img[alt~="right"]) {
+p:has(img[alt~="right"]),
+.right {
   float: right;
   margin-left: 1rem;
 }
