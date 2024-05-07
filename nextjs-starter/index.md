@@ -84,6 +84,7 @@ footer: 시작하기 전에
 # 시작하기 전에...
 
 - NextJS 14버전의 pages directory를 사용합니다 (app directory가 너무 난해해서 그만...)
+- 패키지 매니저로 bun을 사용합니다.
 - 모든 예제는 TypeScript를 사용합니다. (JavaScript도 가능해요!)
 - 시간상 다루지 못한 내용들이 많을것 같습니다. 자세한 내용은 공식 문서를 확인해주세요!
   - https://nextjs.org/docs/pages

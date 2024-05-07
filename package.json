@@ -3,6 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "marp --watch --server --html --theme themes/*.css -I .",
+    "build": "marp --html --theme themes/*.css",
     "start": "marp --server -I ."
   },
   "dependencies": {
