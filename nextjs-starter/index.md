@@ -89,6 +89,8 @@ footer: 시작하기 전에
   - https://nextjs.org/docs/pages
   - https://vercel.com/docs
 - 질문이 있다면 언제 어디서나 질문해주세요! 이 시간은 여러분들을 위한 시간입니다!
+  - 질문은 sli.do를 사용해주세요!
+  - https://nabi-blog.vercel.app/s/2024-nextjs-starter-slido
 
 ---
 
