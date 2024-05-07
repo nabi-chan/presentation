@@ -226,14 +226,6 @@ p img {
   object-fit: contain;
 }
 
-section:has(.left) pre,
-section:has(.right) pre,
-section:has(img[alt~="left"]) pre,
-section:has(img[alt~="right"]) pre {
-  display: inline-block;
-  width: calc(50% - 1rem);
-}
-
 div.left,
 div.right {
   width: 50%;

@@ -61,15 +61,14 @@ NextJS를 사용하여 여러가지 재미있는 것들을 만들어 나가고 �
 - `getStaticProps` / `getStaticPath` 로 정적인 페이지 만들어보기
 - `getServerSideProps` 로 동적인 페이지 만들어보기
 - API Route를 사용하여 API 만들어보기
-- 트러블슈팅 가이드
 
 ### ~ 10분 휴식 ~
 
 ## 3. Vercel로 NextJS 앱 배포해보기
 
 - 서비스 배포해보기
-- vercel.json로 할 수 있는 기능들 알아보기
-- Vercel을 사용해서 협업해보기
+- Github 연동하기
+- Vercel의 여러 기능들 알아보기
 
 ### ~ 질의응답 ~
 
@@ -77,11 +76,19 @@ NextJS를 사용하여 여러가지 재미있는 것들을 만들어 나가고 �
 
 ---
 
-<!-- footer: 목표 -->
+<!--
+_class: big-text
+footer: 시작하기 전에
+-->
 
-# 목표
+# 시작하기 전에...
 
-(여기에 깔쌈한 비디오 미리보기)
+- NextJS 14버전의 pages directory를 사용합니다 (app directory가 너무 난해해서 그만...)
+- 모든 예제는 TypeScript를 사용합니다. (JavaScript도 가능해요!)
+- 시간상 다루지 못한 내용들이 많을것 같습니다. 자세한 내용은 공식 문서를 확인해주세요!
+  - https://nextjs.org/docs/pages
+  - https://vercel.com/docs
+- 질문이 있다면 언제 어디서나 질문해주세요! 이 시간은 여러분들을 위한 시간입니다!
 
 ---
 
@@ -463,19 +470,55 @@ export async function getStaticPaths() {
 
 # API Route를 사용하여 API 만들어보기
 
-API 만드는 예시 (fs를 사용한 데이터 CRUD)
+NextJS에서 API를 만들려면, 어떻게 해야할까요?
+
+레거시 서비스였다면, NextJS 앱 따로... Server 앱 따로 만들어야 했겠지만,
+NextJS에서는 API Route를 사용해서 API를 만들 수 있습니다.
+
+페이지를 만들때와 똑같이, `/pages/api` 폴더에 파일을 만들면 API 경로가 생성됩니다 ^\_^b
+
+아래는 예시 코드입니다.
+
+**`/pages/api/ping`**
+
+```tsx
+export default function handler(req, res) {
+  return res.status(200).end("pong");
+}
+```
 
 ---
 
-# 트러블슈팅 가이드
+# 추가 : API Route handler 이해하기
 
-오류 디버깅은 어떻게 하는지 등등...
+## 1. req 안에 들어가는 값
+
+- `req.method` : API 요청시에 클라이언트가 명시한 Method (GET / POST / PUT / ...)
+- `req.cookies` : 브라우저의 쿠키, `res.cookies.get("쿠키_이름")` 의 형태로 가져옵니다.
+- `req.query` : request 시에 들어가는 값들 (search query, route query) 등을 모아둡니다.
+- `req.body` : API 요청시 body에 들어가는 값
 
 ---
 
-# `@vercel/og` 를 사용하여 오픈그래프 이미지 만들어보기
+# 추가 : API Route handler 이해하기
 
-오픈그래프 만들기
+## 2. res 안에 들어가는 값
+
+- `res.status(status)` : Status 코드를 설정합니다. (200, 403, 404 등등...)
+- `res.json(string)` - JSON Response를 보냅니다. JSON 형태여야 합니다.
+- `res.send(json)` - HTTP Response를 보냅니다. string / object / Buffer 타입을 지원합니다.
+- `res.redirect(status, path)` - 주어진 URL로 리다이렉트합니다.
+- `res.revalidate(path)` - getStaticProps으로 만들어진 페이지를 재생성 하도록 변경합니다.
+
+---
+
+# 추가 : 이것 외에도 다양한 기능들을 지원합니다.
+
+- `@vercel/og` 를 사용한 이미지 생성
+- `<Image>` 태그를 사용한 이미지 최적화
+- `<Script>` 태그를 사용한 스크립트 로딩 최적화
+- `new Font()` 를 사용한 폰트 프리로딩
+- `next/dynamic` 을 사용한 컴포넌트 lazy loading
 
 ---
 
@@ -499,39 +542,131 @@ footer: Vercel로 NextJS 앱 배포해보기
 
 ---
 
+<!-- _class: big-text -->
+
 # Vercel은 또 뭔데?
 
-Vercel에 대한 간단한 설명
+![right](https://yt3.googleusercontent.com/ytc/AIdro_mzdwl3VkFwHuALGOV7ZFk4BHZFkm_sQpt4fFyR_IOuY9Y=s900-c-k-c0x00ffffff-no-rj)
+
+Vercel 은 front-end 어플리케이션을 무엇보다 쉽게 배포할 수 있도록 도와주는 일종의 faas (frontend-as-a-service) 입니다.
+
+cli 나 git을 연동해 다양한 서비스를 손쉽게 배포할 수 있다는 것이 특징입니다.
+
+이것 말고도, cron 이나 database 서비스를 직접 제공함으로써 개발자가 인프라에 크게 신경쓰지 않아도 간단하게 대규모의 서비스를 만들 수 있다는 것이 특징입니다. (최고 ^\_^b)
 
 ---
 
-# Vercel로 서비스 배포해보기
+# Cli로 Vercel 서비스 배포해보기
 
-- cli를 사용한 배포
-- github 레포 연결해서 자동으로 배포하기
+1. `vercel` cli를 자주 사용하는 패키지 매니저로 설치해줍니다.
+
+   ```shell
+   bun global add vercel
+   ```
+
+2. 프로젝트에서 `vercel` 커맨드를 실행시킵니다.
+3. 프롬포트에 뜨는 질문에 차례대로 답합니다.
+
+   ```bash
+   Vercel CLI 33.5.0
+   ? Set up and deploy “~/sample-project”? [Y/n] y # 정말로 배포할것인지 여부
+   ? Which scope do you want to deploy to? nabi-chan # 배포할 팀의 위치
+   ? Link to existing project? [y/N] n # 기존 프로젝트의 연동할것인지 여부
+   ? What’s your project’s name? sample-project # 프로젝트 이름
+   ? In which directory is your code located? ./ # 코드의 위치 (모노레포에서 사용함)
+   Local settings detected in vercel.json:
+   Auto-detected Project Settings (Next.js):
+   - Build Command: next build
+   - Development Command: next dev --port $PORT
+   - Install Command: `yarn install`, `pnpm install`, `npm install`, or `bun install`
+   - Output Directory: Next.js default
+   ? Want to modify these settings? no # 위 설정을 override 할것인지 여부
+   ```
+
+4. 배포가 완료되면 사이트에 접속해보세요!
 
 ---
 
-# vercel의 여러 기능들 알아보기
+<!-- _class: big-text -->
 
-- 로그 보기
-- 인스턴트 롤백
-- PR 프리뷰 코멘트
-- 특정 브랜치에서만 빌드 되게 하기
+# Github 연동으로 서비스 배포해보기
+
+<div class="only" data-marpit-fragment="1">
+
+![right](./vercel-1.png)
+
+1. 프로젝트를 열고, `settings` 탭에 들어갑니다.
+
+</div>
+<div class="only" data-marpit-fragment="2">
+
+![right](./vercel-2.png)
+
+2. `Git` 섹션에 들어갑니다.
+3. `Github` 버튼을 눌러 Vercel과 Github App을 연동합니다.
+4. 연결할 프로젝트를 선택하빈다.
+
+</div>
+<div class="only" data-marpit-fragment="3">
+
+![right](./vercel-3.png)
+
+5. 연동 성공!
+
+</div>
 
 ---
 
-# vercel.json으로 배포 커스터마이징 하기
+<!-- _class: big-text -->
 
-- rewrite
-- redirect
-- headers 추가하기
+# vercel의 여러 기능들 알아보기 (로그 보기)
+
+![right](./vercel-logs.png)
+
+Vercel에서는 서비스의 로그를 직접 볼 수 있는 기능을 제공합니다.
+
+`Logs` 섹션에 들어가면, 원하는 조건에 맞는 함수 실행 로그를 확인할 수 있습니다.
 
 ---
 
-# vercel에서 주기적으로 Node 프로그램 돌리기
+<!-- _class: big-text -->
 
-- vercel.json cron 돌리기
+# vercel의 여러 기능들 알아보기 (인스턴트 롤백)
+
+![right](./vercel-rollback.png)
+
+만약 방금 배포한 서비스에 오류를 일으키는 코드가 존재한다면 어떻게 해야할까요?
+
+기존 서비스라면 다시 배포를 해야하지만...
+Vercel에서는 서비스를 빠르게 롤백할 수 있는 기능을 제공합니다!
+
+`Deployments` 섹션에 들어가, 배포 오른쪽 ... 버튼을 클릭한 다음 `Instant Rollback` 버튼을 누르면 빠르게 롤백이 됩니다 :-)
+
+---
+
+<!-- _class: big-text -->
+
+# vercel의 여러 기능들 알아보기 (PR 프리뷰 코멘트)
+
+![right](./vercel-pr-preview.png)
+
+만약 여러 사람과 협업을 하는 환경이라면, pull-request preview에 comment 기능이 꽤나 유용할거에요.
+
+이 기능은 preview deployment에서 같은 팀원이 코멘트를 직접 남길 수 있도록 도와주는 기능이에요.
+
+오른쪽 스크린샷처럼, Vercel 게정이 있으면 자유롭게 코멘트를 달 수 있습니다!
+
+---
+
+<!-- _class: big-text -->
+
+# vercel의 여러 기능들 알아보기 (특정 조건에서만 빌드 되게하기)
+
+![right](./vercel-ignore-dp.png)
+
+Git을 연동한 상태에서는, 모든 커밋이 푸시될 때마다 빌드가 되는 불편함이 있어요.
+
+이 문제를 해결하기 위해서는 Ignore Build Step을 사용해 특정 조건 (production 브랜치일때 / 커밋 이름에 Build가 들어가 있을 때...) 에서만 빌드가 되도록 할 수 있습니다!
 
 ---
 
@@ -555,4 +690,4 @@ _footer: ""
 
 - 이메일 : [hello@nabi.kim](mailto:hello@nabi.kim)
 - 발표 자료 : https://nabi-blog.vercel.app/s/2024-nextjs-starter
-- 소스 코드 : https://nabi-blog.vercel.app/s/2024-nextjs-starter-code
+- 소스 코드 : https://github.com/nabi-chan/2024-nextjs-starter
